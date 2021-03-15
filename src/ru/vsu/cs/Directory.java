@@ -19,6 +19,10 @@ public class Directory extends Node{
         return children.get(name);
     }
 
+    public HashMap<String, Node> getChildren() {
+        return children;
+    }
+
     public boolean addChild(Node child) {
         if (children.containsKey(child.getName())) {
             return false;
