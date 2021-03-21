@@ -53,38 +53,120 @@ public class FileSystem {
                 remove(splittedCommand);
                 break;
             case "cat":
+                concatenate(splittedCommand);
                 break;
             case "echo":
+                echo(splittedCommand);
                 break;
             case "tree":
+                printThree(splittedCommand);
                 break;
         }
     }
 
-    private void changeDirectory(ArrayList<String> splittedCommand) {
-        Node targetDir = this.currDir.getChild(splittedCommand.get(1));
-        if (targetDir instanceof Directory) {
-            this.currDir = (Directory) targetDir;
+    private Directory getDirByPath(String path) {
+        if (path.equals("/")) {
+            return this.mainDir;
         }
-        else if (splittedCommand.get(1).equals("..")) {
-            this.currDir = this.currDir.getParent();
+        ArrayList<String> pathToTargetDir = new ArrayList<>(Arrays.asList(path.split("/")));
+        Directory targetDir = this.currDir;
+        for (String dirName : pathToTargetDir) {
+            if (dirName.equals("..")) {
+                targetDir = targetDir.getParent();
+            }
+            else if (dirName.equals(".")) {
+                return targetDir;
+            }
+            else if (targetDir.getChildren().containsKey(dirName)) {
+                targetDir = (Directory) targetDir.getChild(dirName);
+            }
+            else {
+                return null;
+            }
+        }
+        return targetDir;
+    }
+
+    private File getFileByPath(String path) {
+        ArrayList<String> pathToFile = new ArrayList<>(Arrays.asList(path.split("/")));
+        String fileName = pathToFile.remove(pathToFile.size() - 1);
+        if (fileName.matches("^.*\\.txt$")) {
+            Directory targetDir = getDirByPath(String.join("/", pathToFile));
+            if (targetDir == null) {
+                if (pathToFile.size() == 0) {
+                    targetDir = this.currDir;
+                }
+                else {
+                    return null;
+                }
+            }
+            if (!targetDir.getChildren().containsKey(fileName)) {
+                targetDir.addChild(new File(targetDir, fileName));
+            }
+            return (File) targetDir.getChild(fileName);
+        }
+        return null;
+    }
+
+    private void changeDirectory(ArrayList<String> splittedCommand) {
+        Directory targetDir = getDirByPath(splittedCommand.get(1));
+        if (targetDir != null) {
+            this.currDir = targetDir;
         }
     }
 
     private void listFiles(ArrayList<String> splittedCommand) {
-        StringBuilder files = new StringBuilder(this.currDir.getName());
+        String text;
+        switch (splittedCommand.size()) {
+            case 1:
+                text = getFiles(this.currDir, false, "\t");
+                System.out.println(text);
+                break;
+            case 2:
+            case 4:
+                Directory targetDir = getDirByPath(splittedCommand.get(1));
+                if (targetDir == null) {
+                    break;
+                }
+                text = getFiles(targetDir, false, "\t");
+                if (splittedCommand.size() == 2) {
+                    System.out.println(text);
+                }
+                else {
+                    String command = String.format("echo %s %s",
+                            text,
+                            String.join(" ", splittedCommand.subList(2, splittedCommand.size())));
+                    echo(processCommand(command));
+                }
+                break;
+        }
+    }
+
+    private void printThree(ArrayList<String> splittedCommand) {
+        String text = getFiles(this.currDir, true, "\t");
+        System.out.println(text);
+    }
+
+    private String getFiles(Directory dir, boolean recursively, String indent) {
+        StringBuilder files = new StringBuilder(dir.getName());
         files.append(" \\\n");
 
-        for (String nodeName : this.currDir.getChildren().keySet()) {
-            files.append(nodeName);
+        for (String nodeName : dir.getChildren().keySet()) {
+            files.append(indent);
+            if (dir.getChild(nodeName) instanceof Directory && recursively) {
+                files.append(getFiles((Directory) dir.getChild(nodeName), true, indent + "\t"));
+            }
+            else {
+                files.append(nodeName);
+            }
             files.append("\n");
         }
-        System.out.println(files.toString());
+        return files.toString();
     }
 
     private void makeDirectory(ArrayList<String> splittedCommand) {
         String dirName = splittedCommand.get(1);
-        if (dirName.matches("[0-9a-zA-Z]+")) {
+        if (dirName.matches("[0-9a-zA-Z_]+")) {
             this.currDir.addChild(new Directory(this.currDir, dirName));
         }
     }
@@ -92,6 +174,44 @@ public class FileSystem {
     private void remove(ArrayList<String> splittedCommand) {
         String name = splittedCommand.get(1);
         this.currDir.getChildren().remove(name);
+    }
+
+    private void concatenate(ArrayList<String> splittedCommand) {
+        File inputFile = (File) this.currDir.getChild(splittedCommand.get(1));
+        if (inputFile == null) {
+            return;
+        }
+        if (splittedCommand.size() == 2) {
+            System.out.println(inputFile.getText());
+        }
+        else if (splittedCommand.size() == 4){
+            File outputFile = getFileByPath(splittedCommand.get(splittedCommand.size() - 1));
+            if (outputFile == null) {
+                return;
+            }
+            if (splittedCommand.get(splittedCommand.size() - 2).equals(">")) {
+                outputFile.setText(inputFile.getText());
+            }
+            else if (splittedCommand.get(splittedCommand.size() - 2).equals(">>")) {
+                outputFile.setText(outputFile.getText() + inputFile.getText());
+            }
+        }
+    }
+
+    private void echo(ArrayList<String> splittedCommand) {
+        String text = String.join(" ", splittedCommand.subList(1, splittedCommand.size() - 2));
+        if (splittedCommand.size() >= 4) {
+            File file = getFileByPath(splittedCommand.get(splittedCommand.size() - 1));
+            if (file == null) {
+                return;
+            }
+            if (splittedCommand.get(splittedCommand.size() - 2).equals(">")) {
+                file.setText(text);
+            }
+            else if (splittedCommand.get(splittedCommand.size() - 2).equals(">>")) {
+                file.setText(file.getText() + text);
+            }
+        }
     }
 
     public void start() {
