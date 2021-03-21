@@ -23,11 +23,10 @@ public class Directory extends Node{
         return children;
     }
 
-    public boolean addChild(Node child) {
+    public void addChild(Node child) {
         if (children.containsKey(child.getName())) {
-            return false;
+            return;
         }
         children.put(child.getName(), child);
-        return true;
     }
 }

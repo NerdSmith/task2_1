@@ -5,8 +5,20 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class FileSystem {
-    private static void printDirPath(Directory currDir) {
-        Directory tmpCurrDir = currDir;
+
+    private Directory mainDir;
+    private Directory currDir;
+
+    public FileSystem(String name) {
+        this.mainDir = new Directory(null, name);
+        this.currDir = this.mainDir;
+
+        currDir.addChild(new Directory(currDir, "dir2"));
+        currDir = (Directory) currDir.getChild("dir2");
+    }
+
+    private void printDirPath() {
+        Directory tmpCurrDir = this.currDir;
         StringBuilder path = new StringBuilder(tmpCurrDir.getName());
         while (tmpCurrDir.getParent() != null) {
             tmpCurrDir = tmpCurrDir.getParent();
@@ -14,78 +26,86 @@ public class FileSystem {
             path.insert(0, tmpCurrDir.getName());
         }
         path.append("> ");
-        System.out.println(path.toString());
+        System.out.print(path.toString());
     }
 
-    private static String readCommand(Directory currDir) {
+    private String readCommand() {
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine();
     }
 
-    private static ArrayList<String> processCommand(String command) {
+    private ArrayList<String> processCommand(String command) {
         return new ArrayList<>(Arrays.asList(command.split(" ")));
     }
 
-    private static void printError(String phrase) {
-        System.out.printf("An error occurred: \n\t%s\n", phrase);
-    }
-
-    private static void execCommand(ArrayList<String> splittedCommand, Directory currDir) {
+    private void execCommand(ArrayList<String> splittedCommand) {
         switch (splittedCommand.get(0)) {
             case "cd":
-                boolean execStatus = changeDirectory(splittedCommand, currDir);
-                if (!execStatus) {
-                    printError("can't find direcrory");
-                }
+                changeDirectory(splittedCommand);
                 break;
             case "ls":
+                listFiles(splittedCommand);
                 break;
             case "mkdir":
+                makeDirectory(splittedCommand);
                 break;
             case "rm":
+                remove(splittedCommand);
                 break;
             case "cat":
+                break;
+            case "echo":
                 break;
             case "tree":
                 break;
         }
     }
 
-    private static boolean changeDirectory(ArrayList<String> splittedCommand, Directory currDir) {
-        Directory targetDir = currDir.getChild(splittedCommand.get(1));
-        if (targetDir != null && targetDir instanceof Directory) {
-            currDir = currDir.getChild(splittedCommand.get(0);
-            return true;
+    private void changeDirectory(ArrayList<String> splittedCommand) {
+        Node targetDir = this.currDir.getChild(splittedCommand.get(1));
+        if (targetDir instanceof Directory) {
+            this.currDir = (Directory) targetDir;
         }
         else if (splittedCommand.get(1).equals("..")) {
-            currDir = currDir.getParent();
-            return true;
-        }
-        else {
-            return false;
+            this.currDir = this.currDir.getParent();
         }
     }
 
-    private static boolean listFiles(ArrayList<String> splittedCommand, Directory currDir) {
-        StringBuilder files = new StringBuilder(currDir.getName());
+    private void listFiles(ArrayList<String> splittedCommand) {
+        StringBuilder files = new StringBuilder(this.currDir.getName());
         files.append(" \\\n");
 
+        for (String nodeName : this.currDir.getChildren().keySet()) {
+            files.append(nodeName);
+            files.append("\n");
+        }
+        System.out.println(files.toString());
+    }
 
-
-
-        for (String nodeName : currDir.getChildren().keySet()) {
-
+    private void makeDirectory(ArrayList<String> splittedCommand) {
+        String dirName = splittedCommand.get(1);
+        if (dirName.matches("[0-9a-zA-Z]+")) {
+            this.currDir.addChild(new Directory(this.currDir, dirName));
         }
     }
 
-    public static void main(String[] args) {
-        Directory mainDir = new Directory(null, "main dir");
-        Directory currDir = mainDir;
-        currDir.addChild(new Directory(currDir, "dir2"));
-        currDir = (Directory) currDir.getChild("dir2");
-        printDirPath(currDir);
-        String command = readCommand(currDir);
-        System.out.println(processCommand(command));
+    private void remove(ArrayList<String> splittedCommand) {
+        String name = splittedCommand.get(1);
+        this.currDir.getChildren().remove(name);
+    }
 
+    public void start() {
+        printDirPath();
+        ArrayList<String> splittedCommand =  processCommand(readCommand());
+        while (!splittedCommand.get(0).equals("exit")) {
+            execCommand(splittedCommand);
+            printDirPath();
+            splittedCommand =  processCommand(readCommand());
+        }
+    }
+
+    public static void main(String [] args) {
+        FileSystem fs = new FileSystem("mainDir");
+        fs.start();
     }
 }
