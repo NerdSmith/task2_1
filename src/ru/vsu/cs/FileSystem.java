@@ -1,12 +1,10 @@
 package ru.vsu.cs;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 public class FileSystem {
 
-    private Directory mainDir;
+    private final Directory mainDir;
     private Directory currDir;
 
     public FileSystem(String name) {
@@ -143,15 +141,30 @@ public class FileSystem {
     }
 
     private void printThree(ArrayList<String> splittedCommand) {
-        String text = getFiles(this.currDir, true, "\t");
-        System.out.println(text);
+        Directory targetDir;
+        if (splittedCommand.size() == 1) {
+            targetDir = this.mainDir;
+        }
+        else {
+            targetDir = getDirByPath(splittedCommand.get(1));
+        }
+        if (targetDir != null) {
+            String text = getFiles(targetDir, true, "\t");
+            System.out.println(text);
+        }
     }
 
     private String getFiles(Directory dir, boolean recursively, String indent) {
         StringBuilder files = new StringBuilder(dir.getName());
-        files.append(" \\\n");
-
-        for (String nodeName : dir.getChildren().keySet()) {
+        if (dir.getChildren().size() != 0) {
+            files.append(" \\\n");
+        }
+        else {
+            files.append(" \\");
+        }
+        ArrayList<String> keys = new ArrayList<>(dir.getChildren().keySet());
+        for (int i = 0; i < keys.size(); i++) {
+            String nodeName = keys.get(i);
             files.append(indent);
             if (dir.getChild(nodeName) instanceof Directory && recursively) {
                 files.append(getFiles((Directory) dir.getChild(nodeName), true, indent + "\t"));
@@ -159,7 +172,9 @@ public class FileSystem {
             else {
                 files.append(nodeName);
             }
-            files.append("\n");
+            if (keys.size() - 1 > i) {
+                files.append("\n");
+            }
         }
         return files.toString();
     }
