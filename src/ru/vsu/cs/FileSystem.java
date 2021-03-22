@@ -10,9 +10,6 @@ public class FileSystem {
     public FileSystem(String name) {
         this.mainDir = new Directory(null, name);
         this.currDir = this.mainDir;
-
-        currDir.addChild(new Directory(currDir, "dir2"));
-        currDir = (Directory) currDir.getChild("dir2");
     }
 
     private void printDirPath() {
@@ -71,14 +68,11 @@ public class FileSystem {
         for (String dirName : pathToTargetDir) {
             if (dirName.equals("..")) {
                 targetDir = targetDir.getParent();
-            }
-            else if (dirName.equals(".")) {
+            } else if (dirName.equals(".")) {
                 return targetDir;
-            }
-            else if (targetDir.getChildren().containsKey(dirName)) {
+            } else if (targetDir.getChildren().containsKey(dirName)) {
                 targetDir = (Directory) targetDir.getChild(dirName);
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -93,8 +87,7 @@ public class FileSystem {
             if (targetDir == null) {
                 if (pathToFile.size() == 0) {
                     targetDir = this.currDir;
-                }
-                else {
+                } else {
                     return null;
                 }
             }
@@ -129,8 +122,7 @@ public class FileSystem {
                 text = getFiles(targetDir, false, "\t");
                 if (splittedCommand.size() == 2) {
                     System.out.println(text);
-                }
-                else {
+                } else {
                     String command = String.format("echo %s %s",
                             text,
                             String.join(" ", splittedCommand.subList(2, splittedCommand.size())));
@@ -144,8 +136,7 @@ public class FileSystem {
         Directory targetDir;
         if (splittedCommand.size() == 1) {
             targetDir = this.mainDir;
-        }
-        else {
+        } else {
             targetDir = getDirByPath(splittedCommand.get(1));
         }
         if (targetDir != null) {
@@ -158,8 +149,7 @@ public class FileSystem {
         StringBuilder files = new StringBuilder(dir.getName());
         if (dir.getChildren().size() != 0) {
             files.append(" \\\n");
-        }
-        else {
+        } else {
             files.append(" \\");
         }
         ArrayList<String> keys = new ArrayList<>(dir.getChildren().keySet());
@@ -168,8 +158,7 @@ public class FileSystem {
             files.append(indent);
             if (dir.getChild(nodeName) instanceof Directory && recursively) {
                 files.append(getFiles((Directory) dir.getChild(nodeName), true, indent + "\t"));
-            }
-            else {
+            } else {
                 files.append(nodeName);
             }
             if (keys.size() - 1 > i) {
@@ -198,16 +187,14 @@ public class FileSystem {
         }
         if (splittedCommand.size() == 2) {
             System.out.println(inputFile.getText());
-        }
-        else if (splittedCommand.size() == 4){
+        } else if (splittedCommand.size() == 4) {
             File outputFile = getFileByPath(splittedCommand.get(splittedCommand.size() - 1));
             if (outputFile == null) {
                 return;
             }
             if (splittedCommand.get(splittedCommand.size() - 2).equals(">")) {
                 outputFile.setText(inputFile.getText());
-            }
-            else if (splittedCommand.get(splittedCommand.size() - 2).equals(">>")) {
+            } else if (splittedCommand.get(splittedCommand.size() - 2).equals(">>")) {
                 outputFile.setText(outputFile.getText() + inputFile.getText());
             }
         }
@@ -222,8 +209,7 @@ public class FileSystem {
             }
             if (splittedCommand.get(splittedCommand.size() - 2).equals(">")) {
                 file.setText(text);
-            }
-            else if (splittedCommand.get(splittedCommand.size() - 2).equals(">>")) {
+            } else if (splittedCommand.get(splittedCommand.size() - 2).equals(">>")) {
                 file.setText(file.getText() + text);
             }
         }
@@ -231,16 +217,11 @@ public class FileSystem {
 
     public void start() {
         printDirPath();
-        ArrayList<String> splittedCommand =  processCommand(readCommand());
+        ArrayList<String> splittedCommand = processCommand(readCommand());
         while (!splittedCommand.get(0).equals("exit")) {
             execCommand(splittedCommand);
             printDirPath();
-            splittedCommand =  processCommand(readCommand());
+            splittedCommand = processCommand(readCommand());
         }
-    }
-
-    public static void main(String [] args) {
-        FileSystem fs = new FileSystem("mainDir");
-        fs.start();
     }
 }
