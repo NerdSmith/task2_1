@@ -6,8 +6,7 @@ public class Directory extends Node{
     private HashMap<String, Node> children = new HashMap<>();
 
     public Directory(Directory parent, String name) {
-        this.setParent(parent);
-        this.setName(name);
+        super(parent, name);
     }
 
     public Node getChild(String name) {

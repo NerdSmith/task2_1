@@ -1,5 +1,10 @@
 package ru.vsu.cs;
 
+import ru.vsu.cs.commands.ChangeDirectoryCommand;
+import ru.vsu.cs.commands.Command;
+import ru.vsu.cs.commands.EchoCommand;
+import ru.vsu.cs.commands.ListFilesCommand;
+
 import java.util.*;
 
 public class FileSystem {
@@ -10,6 +15,8 @@ public class FileSystem {
     public FileSystem(String name) {
         this.mainDir = new Directory(null, name);
         this.currDir = this.mainDir;
+
+        currDir.addChild(new Directory(currDir, "newDir1"));
     }
 
     private void printDirPath() {
@@ -36,10 +43,14 @@ public class FileSystem {
     private void execCommand(ArrayList<String> splittedCommand) {
         switch (splittedCommand.get(0)) {
             case "cd":
-                changeDirectory(splittedCommand);
+                Command cd = new ChangeDirectoryCommand();
+                currDir = cd.exec(splittedCommand, mainDir, currDir);
+                //changeDirectory(splittedCommand);
                 break;
             case "ls":
-                listFiles(splittedCommand);
+                ListFilesCommand ls = new ListFilesCommand();
+                currDir = ls.exec(splittedCommand, mainDir, currDir);
+                //listFiles(splittedCommand);
                 break;
             case "mkdir":
                 makeDirectory(splittedCommand);
@@ -216,10 +227,15 @@ public class FileSystem {
     }
 
     public void start() {
+        HashMap<String, Command> hm = new HashMap<>();
+        hm.put("cd", new ChangeDirectoryCommand());
+        hm.put("ls", new ListFilesCommand());
+        hm.put("echo", new EchoCommand());
         printDirPath();
         ArrayList<String> splittedCommand = processCommand(readCommand());
         while (!splittedCommand.get(0).equals("exit")) {
-            execCommand(splittedCommand);
+            //execCommand(splittedCommand);
+            currDir = hm.get(splittedCommand.get(0)).exec(splittedCommand, mainDir, currDir);
             printDirPath();
             splittedCommand = processCommand(readCommand());
         }

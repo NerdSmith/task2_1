@@ -3,15 +3,8 @@ package ru.vsu.cs;
 public class File extends Node{
     private String text;
 
-    public File(Directory parent, String name, String text) {
-        this.setParent(parent);
-        this.setName(name);
-        this.text = text;
-    }
-
     public File(Directory parent, String name) {
-        this.setParent(parent);
-        this.setName(name);
+        super(parent, name);
         this.text = "";
     }
 
