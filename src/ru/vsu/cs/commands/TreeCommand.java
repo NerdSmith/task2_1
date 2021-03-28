@@ -8,12 +8,12 @@ import java.util.regex.Pattern;
 
 import static ru.vsu.cs.utils.FileSystemUtils.*;
 
-public class ListFilesCommand extends Command {
-    private final String currDirConsoleRegex = "ls";
-    private final String anyDirConsoleRegex = "ls\\s([0-9a-zA-Z_./]+)";
-    private final String fileRegex = "ls\\s([0-9a-zA-Z_./]+)\\s(>{1,2})\\s(\\S+\\.txt)";
+public class TreeCommand extends Command {
+    private final String mainDirConsoleRegex = "tree";
+    private final String anyDirConsoleRegex = "tree\\s([0-9a-zA-Z_./]+)";
+    private final String fileRegex = "tree\\s([0-9a-zA-Z_./]+)\\s(>{1,2})\\s(\\S+\\.txt)";
 
-    public ListFilesCommand(String name) {
+    public TreeCommand(String name) {
         super(name);
     }
 
@@ -21,8 +21,8 @@ public class ListFilesCommand extends Command {
     public Directory exec(ArrayList<String> splittedCommand, Directory mainDir, Directory currDir) {
         String command = String.join(" ", splittedCommand);
         String text;
-        if (command.matches(currDirConsoleRegex)) {
-            text = getFiles(currDir, false, "\t");
+        if (command.matches(mainDirConsoleRegex)) {
+            text = getText("/", mainDir, currDir);
             System.out.println(text);
         }
         else if (command.matches(anyDirConsoleRegex)) {
@@ -52,6 +52,7 @@ public class ListFilesCommand extends Command {
         if (targetDir == null) {
             return null;
         }
-        return getFiles(targetDir, false, "\t");
+        return getFiles(targetDir, true, "\t");
     }
 }
+

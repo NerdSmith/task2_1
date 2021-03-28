@@ -4,6 +4,20 @@ import ru.vsu.cs.Directory;
 
 import java.util.ArrayList;
 
-public interface Command {
-    Directory exec(ArrayList<String> splittedCommand, Directory mainDir, Directory currDir);
+public abstract class Command {
+    private String name;
+
+    public Command(String name) {
+        this.name = name;
+    }
+
+    public abstract Directory exec(ArrayList<String> splittedCommand, Directory mainDir, Directory currDir);
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

@@ -5,6 +5,7 @@ import ru.vsu.cs.File;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class FileSystemUtils {
     public static Directory getDirByPath(String path, Directory mainDir, Directory currDir) {
@@ -70,9 +71,24 @@ public class FileSystemUtils {
         return files.toString();
     }
 
+    public static String readCommand() {
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine();
+    }
+
+    public static void printDirPath(Directory currDir) {
+        Directory tmpCurrDir = currDir;
+        StringBuilder path = new StringBuilder(tmpCurrDir.getName());
+        while (tmpCurrDir.getParent() != null) {
+            tmpCurrDir = tmpCurrDir.getParent();
+            path.insert(0, "\\");
+            path.insert(0, tmpCurrDir.getName());
+        }
+        path.append("> ");
+        System.out.print(path.toString());
+    }
+
     public static ArrayList<String> processCommand(String command) {
         return new ArrayList<>(Arrays.asList(command.split(" ")));
     }
-
-
 }

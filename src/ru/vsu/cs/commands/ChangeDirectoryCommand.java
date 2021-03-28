@@ -6,7 +6,11 @@ import java.util.ArrayList;
 
 import static ru.vsu.cs.utils.FileSystemUtils.getDirByPath;
 
-public class ChangeDirectoryCommand implements Command{
+public class ChangeDirectoryCommand extends Command{
+
+    public ChangeDirectoryCommand(String name) {
+        super(name);
+    }
 
     @Override
     public Directory exec(ArrayList<String> splittedCommand, Directory mainDir, Directory currDir) {
