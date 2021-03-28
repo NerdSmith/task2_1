@@ -1,6 +1,6 @@
-package ru.vsu.cs;
+package ru.vsu.cs.nodes;
 
-public class File extends Node{
+public class File extends Node {
     private String text;
 
     public File(Directory parent, String name) {

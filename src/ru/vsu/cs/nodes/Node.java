@@ -1,4 +1,4 @@
-package ru.vsu.cs;
+package ru.vsu.cs.nodes;
 
 public abstract class Node {
     private String name;

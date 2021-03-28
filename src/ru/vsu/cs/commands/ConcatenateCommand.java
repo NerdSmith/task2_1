@@ -1,13 +1,12 @@
 package ru.vsu.cs.commands;
 
-import ru.vsu.cs.Directory;
-import ru.vsu.cs.File;
+import ru.vsu.cs.nodes.Directory;
+import ru.vsu.cs.nodes.File;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static ru.vsu.cs.utils.FileSystemUtils.getFileByPath;
 import static ru.vsu.cs.utils.FileSystemUtils.processCommand;
 
 public class ConcatenateCommand extends Command {

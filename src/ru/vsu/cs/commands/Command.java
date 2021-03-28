@@ -1,6 +1,6 @@
 package ru.vsu.cs.commands;
 
-import ru.vsu.cs.Directory;
+import ru.vsu.cs.nodes.Directory;
 
 import java.util.ArrayList;
 

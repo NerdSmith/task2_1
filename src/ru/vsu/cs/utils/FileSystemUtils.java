@@ -1,7 +1,7 @@
 package ru.vsu.cs.utils;
 
-import ru.vsu.cs.Directory;
-import ru.vsu.cs.File;
+import ru.vsu.cs.nodes.Directory;
+import ru.vsu.cs.nodes.File;
 
 import java.util.ArrayList;
 import java.util.Arrays;

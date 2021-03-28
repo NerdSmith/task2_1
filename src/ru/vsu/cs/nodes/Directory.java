@@ -1,8 +1,8 @@
-package ru.vsu.cs;
+package ru.vsu.cs.nodes;
 
 import java.util.HashMap;
 
-public class Directory extends Node{
+public class Directory extends Node {
     private HashMap<String, Node> children = new HashMap<>();
 
     public Directory(Directory parent, String name) {
